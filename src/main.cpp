@@ -2,8 +2,8 @@
 #include "helper.hpp"
 
 
-const char* SSID = "Nicoleta";
-const char* PASSWORD =  "A21D2CCAD9";
+const char* SSID = "SSID";
+const char* PASSWORD =  "PASSWORD";
 const char* UUID = "kf5hf536sa";
 
 const int COMMAND_PORT = 8088;
