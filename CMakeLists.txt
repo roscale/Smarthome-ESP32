@@ -51,4 +51,4 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(${PROJECT_NAME} ${SRC_LIST})
+add_executable(${PROJECT_NAME} ${SRC_LIST} src/structures/Data.cpp src/structures/Data.hpp src/connection/Network.cpp src/connection/Network.hpp src/constants.cpp src/constants.hpp src/connection/bluetooth/Bluetooth.cpp src/connection/bluetooth/Bluetooth.hpp src/connection/bluetooth/callbacks/TestConnection.cpp src/connection/bluetooth/callbacks/TestConnection.hpp src/connection/bluetooth/callbacks/SaveConfig.cpp src/connection/bluetooth/callbacks/SaveConfig.hpp src/structures/PowerState.cpp src/structures/PowerState.hpp)
