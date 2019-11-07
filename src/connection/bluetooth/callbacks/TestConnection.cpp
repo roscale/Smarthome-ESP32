@@ -4,10 +4,6 @@
 
 #include "TestConnection.hpp"
 
-TestConnectionCallbacks::TestConnectionCallbacks(Bluetooth *bluetooth, Network *network) : bluetooth(bluetooth),
-                                                                                           network(network) {
-}
-
 void TestConnectionCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
     Serial.println("[BLE] Testing connection");
     std::string response = pCharacteristic->getValue();
@@ -23,12 +19,12 @@ void TestConnectionCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
         rawString.erase(0, rawString.find(delimiter) + delimiter.length());
         auto &psk = rawString;
 
-        network->disconnect();
-        network->connect(ssid.c_str(), psk.c_str());
+        Network.disconnect();
+        Network.connect(ssid.c_str(), psk.c_str());
 
-        int connected = network->getStatus() == WL_CONNECTED;
-        bluetooth->testConnectionTXCharacteristic->setValue(connected);
-        bluetooth->testConnectionTXCharacteristic->notify();
+        int connected = Network.getStatus() == WL_CONNECTED;
+        Bluetooth.testConnectionTXCharacteristic->setValue(connected);
+        Bluetooth.testConnectionTXCharacteristic->notify();
 
         buffer.str("");
     }

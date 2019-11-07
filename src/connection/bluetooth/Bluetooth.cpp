@@ -10,8 +10,9 @@
 #include <connection/bluetooth/callbacks/TestConnection.hpp>
 #include <connection/bluetooth/callbacks/SaveConfig.hpp>
 
-void Bluetooth::init(Network *network, const char *name, const char *ssid) {
-    this->network = network;
+BluetoothClass Bluetooth;
+
+void BluetoothClass::init(const char *name, const char *ssid) {
     BLEDevice::init(name);
 
     BLEServer *pServer = BLEDevice::createServer();
@@ -35,7 +36,7 @@ void Bluetooth::init(Network *network, const char *name, const char *ssid) {
             TEST_CONNECTION_RX_CHARACTERISTIC_UUID,
             BLECharacteristic::PROPERTY_WRITE
     );
-    testConnectionRXCharacteristic->setCallbacks(new TestConnectionCallbacks(this, network));
+    testConnectionRXCharacteristic->setCallbacks(new TestConnectionCallbacks());
 
     testConnectionTXCharacteristic = pService->createCharacteristic(
             TEST_CONNECTION_TX_CHARACTERISTIC_UUID,
@@ -47,7 +48,7 @@ void Bluetooth::init(Network *network, const char *name, const char *ssid) {
             SAVE_CONFIG_RX_CHARACTERISTIC_UUID,
             BLECharacteristic::PROPERTY_WRITE
     );
-    saveConfigRXCharacteristic->setCallbacks(new SaveConfigCallbacks(nullptr, network));
+    saveConfigRXCharacteristic->setCallbacks(new SaveConfigCallbacks());
 
     pService->start();
 
@@ -55,7 +56,6 @@ void Bluetooth::init(Network *network, const char *name, const char *ssid) {
     pAdvertising->addServiceUUID(SERVICE_UUID);
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
-    pAdvertising->setMinPreferred(0x12);
     BLEDevice::startAdvertising();
 
     Serial.println("[BLE] Started.");

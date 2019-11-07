@@ -7,11 +7,9 @@
 #include <BLECharacteristic.h>
 #include <connection/Network.hpp>
 
-class Bluetooth {
+class BluetoothClass {
     friend class TestConnectionCallbacks; // Send back connection result
     friend class SaveConfigCallbacks; // Send back connection result
-
-    Network *network;
 
     BLECharacteristic *nameCharacteristic;
     BLECharacteristic *ssidCharacteristic;
@@ -20,5 +18,7 @@ class Bluetooth {
     BLECharacteristic *saveConfigRXCharacteristic;
 
 public:
-    void init(Network *network, const char *name, const char *ssid);
+    void init(const char *name, const char *ssid);
 };
+
+extern BluetoothClass Bluetooth;

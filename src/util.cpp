@@ -1,4 +1,4 @@
-#include "helper.hpp"
+#include "util.hpp"
 
 String createDiscoveryMessage(const char* UUID, const char* name, int powerState) {
 	String s = "{";

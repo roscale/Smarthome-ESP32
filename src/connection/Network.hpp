@@ -10,7 +10,7 @@
 #include <WiFiUdp.h>
 #include "constants.hpp"
 
-class Network {
+class NetworkClass {
     uint8_t status;
     WiFiClient client;
     WiFiServer server;
@@ -21,7 +21,7 @@ class Network {
     static uint8_t data[dataLength];
 
 public:
-    Network();
+    NetworkClass();
 
     void connect(const char *ssid, const char *psk = nullptr);
 
@@ -31,3 +31,5 @@ public:
 
     void handleCommands();
 };
+
+extern NetworkClass Network;

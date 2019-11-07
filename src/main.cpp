@@ -6,10 +6,7 @@
 #include <connection/Network.hpp>
 #include <connection/bluetooth/Bluetooth.hpp>
 
-#include "structures/Data.hpp"
-
-Network* network;
-Bluetooth* bluetooth;
+#include "structures/GlobalConfig.hpp"
 
 void setup() {
     Serial.begin(115200);
@@ -23,20 +20,22 @@ void setup() {
         ESP.restart();
     }
 
-    network = new Network();
-    bluetooth = new Bluetooth();
+//    GlobalConfig cfg = GlobalConfig::load();
+    GlobalConfig cfg = GlobalConfig{};
+    strcpy(cfg.name, "Other");
+    strcpy(cfg.ssid, "Nicoleta");
+    strcpy(cfg.psk, "A21D2CCAD9");
 
-    Data data = readData();
-    bluetooth->init(network, data.name, data.ssid);
-    network->connect(data.ssid, data.psk);
+	Bluetooth.init(cfg.name, cfg.ssid);
+    Network.connect(cfg.ssid, cfg.psk);
 }
 
 
 void loop() {
-    if (network->getStatus() != WL_CONNECTED) {
+    if (Network.getStatus() != WL_CONNECTED) {
         delay(1000);
         return;
     }
 
-    network->handleCommands();
+    Network.handleCommands();
 }

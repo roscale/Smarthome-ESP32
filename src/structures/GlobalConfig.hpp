@@ -5,14 +5,13 @@
 
 #include <EEPROM.h>
 
-struct Data {
+struct GlobalConfig {
     char name[256];
     char ssid[256];
     char psk[256];
+
+    static GlobalConfig load();
+	static void readName(char *name);
+
+	void save();
 };
-
-Data readData();
-
-void readName(char *name);
-
-void writeData(Data *data);

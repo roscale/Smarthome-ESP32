@@ -3,16 +3,18 @@
 //
 
 #include "Network.hpp"
-#include <structures/Data.hpp>
+#include <structures/GlobalConfig.hpp>
 #include <structures/PowerState.hpp>
-#include <helper.hpp>
+#include <util.hpp>
 
-uint8_t Network::data[dataLength];
+NetworkClass Network;
 
-Network::Network() : server(COMMAND_PORT) {
+uint8_t NetworkClass::data[dataLength];
+
+NetworkClass::NetworkClass() : server(COMMAND_PORT) {
 }
 
-void Network::connect(const char *ssid, const char *psk) {
+void NetworkClass::connect(const char *ssid, const char *psk) {
     Serial.print("Connecting to the WiFi network: '");
     Serial.print(ssid);
     Serial.print("' with the PSK: '");
@@ -32,24 +34,25 @@ void Network::connect(const char *ssid, const char *psk) {
     }
 }
 
-void Network::disconnect() {
+void NetworkClass::disconnect() {
     udpListener.stop();
     server.stop();
     WiFi.disconnect();
     status = WL_DISCONNECTED;
 }
 
-uint8_t Network::getStatus() {
+uint8_t NetworkClass::getStatus() {
     return status;
 }
 
-void Network::handleCommands() {
-    // Discovery through UDP
+void NetworkClass::handleCommands() {
+    // Discovery through UDP, broadcasting using TCP is not possible
     int udpMsgLength = udpListener.parsePacket();
     if (udpMsgLength != 0) {
+    	// Parse the packet (a string) and append the null character in the end
         char udpPacket[udpMsgLength + 1];
         udpListener.read(udpPacket, udpMsgLength);
-        udpPacket[udpMsgLength] = 0x0;
+        udpPacket[udpMsgLength] = '\0';
 
         Serial.println("Reading packet");
 
@@ -63,13 +66,17 @@ void Network::handleCommands() {
 
         if (client.connect(udpListener.remoteIP(), DISCOVERY_SEND_PORT)) {
             static char name[256];
-            memset(name, 0, strlen(name)); // Fix remaining characters from the past
+            /* Reset leftover characters
+             * If we first set a long name and then a shorter one, the
+             * characters that are not overwritten remain in the string */
+            memset(name, 0, strlen(name));
 
-            readName(name);
+            GlobalConfig::readName(name);
             Serial.println(name);
             String message = createDiscoveryMessage(UUID, name, powerState);
 
             client.print(message);
+            client.flush();
             client.stop();
 
             Serial.print("Sent: ");
@@ -89,12 +96,9 @@ void Network::handleCommands() {
 
             while (client.connected()) {
                 if (client.available()) {
-                    int len = client.read(data, dataLength);
-                    if (len < dataLength) {
-                        data[len] = '\0';
-                    } else {
-                        data[dataLength - 1] = '\0';
-                    }
+                	// Append the null character at the end of the message
+                    int len = client.read(data, dataLength - 1);
+	                data[len] = '\0';
 
                     auto *dataStr = (char *) data;
 

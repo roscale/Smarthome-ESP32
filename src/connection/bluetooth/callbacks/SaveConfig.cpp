@@ -4,11 +4,7 @@
 
 #include "SaveConfig.hpp"
 #include <HardwareSerial.h>
-#include <structures/Data.hpp>
-
-SaveConfigCallbacks::SaveConfigCallbacks(Bluetooth *bluetooth, Network *network) : bluetooth(bluetooth),
-                                                                                   network(network) {
-}
+#include <structures/GlobalConfig.hpp>
 
 void SaveConfigCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
     Serial.println("[BLE] Saving settings");
@@ -30,18 +26,18 @@ void SaveConfigCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
 
         auto &psk = rawString;
 
-        Data data{};
-        strcpy(data.name, name.c_str());
-        strcpy(data.ssid, ssid.c_str());
-        strcpy(data.psk, psk.c_str());
+        GlobalConfig cfg{};
+        strcpy(cfg.name, name.c_str());
+        strcpy(cfg.ssid, ssid.c_str());
+        strcpy(cfg.psk, psk.c_str());
 
-        writeData(&data);
+	    cfg.save();
 
-        bluetooth->nameCharacteristic->setValue(data.name);
-        bluetooth->ssidCharacteristic->setValue(data.ssid);
+        Bluetooth.nameCharacteristic->setValue(cfg.name);
+        Bluetooth.ssidCharacteristic->setValue(cfg.ssid);
 
-        network->disconnect();
-        network->connect(ssid.c_str(), psk.c_str());
+        Network.disconnect();
+        Network.connect(ssid.c_str(), psk.c_str());
 
         buffer.str("");
     }
