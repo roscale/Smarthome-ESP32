@@ -1,18 +1,12 @@
-#include <cstddef>
-#include <sstream>
-#include <string>
-
 #include <WiFi.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include <EEPROM.h>
-#include <BLE2902.h>
 #include <connection/Network.hpp>
 #include <connection/bluetooth/Bluetooth.hpp>
 
 #include "structures/Data.hpp"
-#include "helper.hpp"
 
 Network* network;
 Bluetooth* bluetooth;
@@ -39,10 +33,10 @@ void setup() {
 
 
 void loop() {
-    if (network.getStatus() != WL_CONNECTED) {
+    if (network->getStatus() != WL_CONNECTED) {
         delay(1000);
         return;
     }
 
-    network.handleCommands();
+    network->handleCommands();
 }

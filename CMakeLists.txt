@@ -1,11 +1,28 @@
+# !!! WARNING !!! AUTO-GENERATED FILE, PLEASE DO NOT MODIFY IT AND USE
+# https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+#
+# If you need to override existing CMake configuration or add extra,
+# please create `CMakeListsUser.txt` in the root of project.
+# The `CMakeListsUser.txt` will not be overwritten by PlatformIO.
+
 cmake_minimum_required(VERSION 3.2)
-project(Smarthome)
+project(Smarthome-ESP32)
 
 include(CMakeListsPrivate.txt)
+
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/CMakeListsUser.txt)
+include(CMakeListsUser.txt)
+endif()
 
 add_custom_target(
     PLATFORMIO_BUILD ALL
     COMMAND ${PLATFORMIO_CMD} -f -c clion run
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(
+    PLATFORMIO_BUILD_VERBOSE ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion run --verbose
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -18,6 +35,12 @@ add_custom_target(
 add_custom_target(
     PLATFORMIO_CLEAN ALL
     COMMAND ${PLATFORMIO_CMD} -f -c clion run --target clean
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(
+    PLATFORMIO_MONITOR ALL
+    COMMAND ${PLATFORMIO_CMD} -f -c clion device monitor
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -51,4 +74,4 @@ add_custom_target(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(${PROJECT_NAME} ${SRC_LIST} src/structures/Data.cpp src/structures/Data.hpp src/connection/Network.cpp src/connection/Network.hpp src/constants.cpp src/constants.hpp src/connection/bluetooth/Bluetooth.cpp src/connection/bluetooth/Bluetooth.hpp src/connection/bluetooth/callbacks/TestConnection.cpp src/connection/bluetooth/callbacks/TestConnection.hpp src/connection/bluetooth/callbacks/SaveConfig.cpp src/connection/bluetooth/callbacks/SaveConfig.hpp src/structures/PowerState.cpp src/structures/PowerState.hpp)
+add_executable(${PROJECT_NAME} ${SRC_LIST})
