@@ -5,8 +5,8 @@
 #pragma once
 
 enum PowerState {
-    OFF = 0,
-    ON = 1
+	OFF = 0,
+	ON = 1
 };
 
 extern PowerState powerState;

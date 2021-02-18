@@ -8,17 +8,17 @@
 #include <connection/Network.hpp>
 
 class BluetoothClass {
-    friend class TestConnectionCallbacks; // Send back connection result
-    friend class SaveConfigCallbacks; // Send back connection result
+	friend class TestConnectionCallbacks; // Send back connection result
+	friend class SaveConfigCallbacks; // Send back connection result
 
-    BLECharacteristic *nameCharacteristic;
-    BLECharacteristic *ssidCharacteristic;
-    BLECharacteristic *testConnectionRXCharacteristic;
-    BLECharacteristic *testConnectionTXCharacteristic;
-    BLECharacteristic *saveConfigRXCharacteristic;
+	BLECharacteristic *nameCharacteristic;
+	BLECharacteristic *ssidCharacteristic;
+	BLECharacteristic *testConnectionRXCharacteristic;
+	BLECharacteristic *testConnectionTXCharacteristic;
+	BLECharacteristic *saveConfigRXCharacteristic;
 
 public:
-    void init(const char *name, const char *ssid);
+	void init(const char *name, const char *ssid);
 };
 
 extern BluetoothClass Bluetooth;

@@ -6,11 +6,12 @@
 #include <EEPROM.h>
 
 struct GlobalConfig {
-    char name[256];
-    char ssid[256];
-    char psk[256];
+	char name[256];
+	char ssid[256];
+	char psk[256];
 
-    static GlobalConfig load();
+	static GlobalConfig load();
+
 	static void readName(char *name);
 
 	void save();

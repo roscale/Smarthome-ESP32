@@ -10,8 +10,8 @@
 #include <connection/bluetooth/Bluetooth.hpp>
 
 class SaveConfigCallbacks : public BLECharacteristicCallbacks {
-    std::stringstream buffer;
+	std::stringstream buffer;
 
 public:
-    void onWrite(BLECharacteristic *pCharacteristic) override;
+	void onWrite(BLECharacteristic *pCharacteristic) override;
 };

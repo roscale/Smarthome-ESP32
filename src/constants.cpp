@@ -4,7 +4,8 @@
 
 #include "constants.hpp"
 
-const char *UUID = "black";
+const char *UUID = "prototype";
+//const char *UUID = "black";
 
 const char *SERVICE_UUID = "b1d109ed-eb34-4421-8780-841efba77469";
 const char *NAME_CHARACTERISTIC_UUID = "6cba5470-a064-4479-a4e9-c3a3b479d402";

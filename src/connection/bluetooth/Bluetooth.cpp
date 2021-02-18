@@ -13,50 +13,50 @@
 BluetoothClass Bluetooth;
 
 void BluetoothClass::init(const char *name, const char *ssid) {
-    BLEDevice::init(name);
+	BLEDevice::init(name);
 
-    BLEServer *pServer = BLEDevice::createServer();
-    BLEService *pService = pServer->createService(SERVICE_UUID);
+	BLEServer *pServer = BLEDevice::createServer();
+	BLEService *pService = pServer->createService(SERVICE_UUID);
 
-    nameCharacteristic = pService->createCharacteristic(
-            NAME_CHARACTERISTIC_UUID,
-            BLECharacteristic::PROPERTY_READ |
-            BLECharacteristic::PROPERTY_WRITE
-    );
-    nameCharacteristic->setValue(name);
+	nameCharacteristic = pService->createCharacteristic(
+		  NAME_CHARACTERISTIC_UUID,
+		  BLECharacteristic::PROPERTY_READ |
+		  BLECharacteristic::PROPERTY_WRITE
+	);
+	nameCharacteristic->setValue(name);
 
-    ssidCharacteristic = pService->createCharacteristic(
-            SSID_CHARACTERISTIC_UUID,
-            BLECharacteristic::PROPERTY_READ |
-            BLECharacteristic::PROPERTY_WRITE
-    );
-    ssidCharacteristic->setValue(ssid);
+	ssidCharacteristic = pService->createCharacteristic(
+		  SSID_CHARACTERISTIC_UUID,
+		  BLECharacteristic::PROPERTY_READ |
+		  BLECharacteristic::PROPERTY_WRITE
+	);
+	ssidCharacteristic->setValue(ssid);
 
-    testConnectionRXCharacteristic = pService->createCharacteristic(
-            TEST_CONNECTION_RX_CHARACTERISTIC_UUID,
-            BLECharacteristic::PROPERTY_WRITE
-    );
-    testConnectionRXCharacteristic->setCallbacks(new TestConnectionCallbacks());
+	testConnectionRXCharacteristic = pService->createCharacteristic(
+		  TEST_CONNECTION_RX_CHARACTERISTIC_UUID,
+		  BLECharacteristic::PROPERTY_WRITE
+	);
+	testConnectionRXCharacteristic->setCallbacks(new TestConnectionCallbacks());
 
-    testConnectionTXCharacteristic = pService->createCharacteristic(
-            TEST_CONNECTION_TX_CHARACTERISTIC_UUID,
-            BLECharacteristic::PROPERTY_NOTIFY
-    );
-    testConnectionTXCharacteristic->addDescriptor(new BLE2902());
+	testConnectionTXCharacteristic = pService->createCharacteristic(
+		  TEST_CONNECTION_TX_CHARACTERISTIC_UUID,
+		  BLECharacteristic::PROPERTY_NOTIFY
+	);
+	testConnectionTXCharacteristic->addDescriptor(new BLE2902());
 
-    saveConfigRXCharacteristic = pService->createCharacteristic(
-            SAVE_CONFIG_RX_CHARACTERISTIC_UUID,
-            BLECharacteristic::PROPERTY_WRITE
-    );
-    saveConfigRXCharacteristic->setCallbacks(new SaveConfigCallbacks());
+	saveConfigRXCharacteristic = pService->createCharacteristic(
+		  SAVE_CONFIG_RX_CHARACTERISTIC_UUID,
+		  BLECharacteristic::PROPERTY_WRITE
+	);
+	saveConfigRXCharacteristic->setCallbacks(new SaveConfigCallbacks());
 
-    pService->start();
+	pService->start();
 
-    BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-    pAdvertising->addServiceUUID(SERVICE_UUID);
-    pAdvertising->setScanResponse(true);
-    pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
-    BLEDevice::startAdvertising();
+	BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+	pAdvertising->addServiceUUID(SERVICE_UUID);
+	pAdvertising->setScanResponse(true);
+	pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
+	BLEDevice::startAdvertising();
 
-    Serial.println("[BLE] Started.");
+	Serial.println("[BLE] Started.");
 }
