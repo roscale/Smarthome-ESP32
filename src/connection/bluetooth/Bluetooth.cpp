@@ -4,59 +4,67 @@
 
 #include "Bluetooth.hpp"
 #include <HardwareSerial.h>
-#include <BLEDevice.h>
-#include <BLE2902.h>
 #include <constants.hpp>
-#include <connection/bluetooth/callbacks/TestConnection.hpp>
-#include <connection/bluetooth/callbacks/SaveConfig.hpp>
+#include <util.hpp>
+#include <tiny-json.h>
+#include <structures/PowerState.hpp>
 
 BluetoothClass Bluetooth;
 
-void BluetoothClass::init(const char *name, const char *ssid) {
-	BLEDevice::init(name);
+void BluetoothClass::init(const char* name) {
+	btSerial = BluetoothSerial();
+	if (!btSerial.begin(name)) {
+		Serial.println("Failed to initialize bluetooth serial.");
+	}
+}
 
-	BLEServer *pServer = BLEDevice::createServer();
-	BLEService *pService = pServer->createService(SERVICE_UUID);
+void BluetoothClass::handleCommands() {
+	if (btSerial.available()) {
+		String jsonString = btSerial.readString();
 
-	nameCharacteristic = pService->createCharacteristic(
-		  NAME_CHARACTERISTIC_UUID,
-		  BLECharacteristic::PROPERTY_READ |
-		  BLECharacteristic::PROPERTY_WRITE
-	);
-	nameCharacteristic->setValue(name);
+		auto printJsonError = [&]() {
+			Serial.print("Couldn't parse json: ");
+			Serial.println(jsonString.c_str());
+			btSerial.flush();
+			btSerial.disconnect();
+		};
 
-	ssidCharacteristic = pService->createCharacteristic(
-		  SSID_CHARACTERISTIC_UUID,
-		  BLECharacteristic::PROPERTY_READ |
-		  BLECharacteristic::PROPERTY_WRITE
-	);
-	ssidCharacteristic->setValue(ssid);
+		char* jsonStr = &jsonString[0];
+		json_t mem[32];
+		const json_t* json = json_create(jsonStr, mem, sizeof mem / sizeof *mem);
+		if (!json) {
+			printJsonError();
+			return;
+		}
 
-	testConnectionRXCharacteristic = pService->createCharacteristic(
-		  TEST_CONNECTION_RX_CHARACTERISTIC_UUID,
-		  BLECharacteristic::PROPERTY_WRITE
-	);
-	testConnectionRXCharacteristic->setCallbacks(new TestConnectionCallbacks());
+		// Client requests device information
+		if (json_getProperty(json, "info") != nullptr) {
+			String info = createDiscoveryMessage(UUID, "NEW Prototype", 1);
+			btSerial.print(info);
+			btSerial.flush();
+			return;
+//			btSerial.disconnect();
+		}
 
-	testConnectionTXCharacteristic = pService->createCharacteristic(
-		  TEST_CONNECTION_TX_CHARACTERISTIC_UUID,
-		  BLECharacteristic::PROPERTY_NOTIFY
-	);
-	testConnectionTXCharacteristic->addDescriptor(new BLE2902());
+		const json_t* powerStateProperty = json_getProperty(json, "power_state");
+		if (powerStateProperty != nullptr) {
+			if (json_getType(powerStateProperty) != JSON_INTEGER) {
+				printJsonError();
+				return;
+			}
+			int64_t powerStateValue = json_getInteger(powerStateProperty);
+			Serial.print("Power State: ");
+			Serial.println(powerStateValue);
+			if (powerStateValue == 1) {
+				powerState = PowerState::ON;
+				digitalWrite(LIGHT_PIN, HIGH);
+			} else {
+				powerState = PowerState::OFF;
+				digitalWrite(LIGHT_PIN, LOW);
+			}
+		}
 
-	saveConfigRXCharacteristic = pService->createCharacteristic(
-		  SAVE_CONFIG_RX_CHARACTERISTIC_UUID,
-		  BLECharacteristic::PROPERTY_WRITE
-	);
-	saveConfigRXCharacteristic->setCallbacks(new SaveConfigCallbacks());
-
-	pService->start();
-
-	BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-	pAdvertising->addServiceUUID(SERVICE_UUID);
-	pAdvertising->setScanResponse(true);
-	pAdvertising->setMinPreferred(0x06);  // functions that help with iPhone connections issue
-	BLEDevice::startAdvertising();
-
-	Serial.println("[BLE] Started.");
+		btSerial.flush();
+		btSerial.disconnect();
+	}
 }

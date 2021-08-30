@@ -4,21 +4,13 @@
 
 #pragma once
 
-#include <BLECharacteristic.h>
-#include <connection/Network.hpp>
+#include "BluetoothSerial.h"
 
 class BluetoothClass {
-	friend class TestConnectionCallbacks; // Send back connection result
-	friend class SaveConfigCallbacks; // Send back connection result
-
-	BLECharacteristic *nameCharacteristic;
-	BLECharacteristic *ssidCharacteristic;
-	BLECharacteristic *testConnectionRXCharacteristic;
-	BLECharacteristic *testConnectionTXCharacteristic;
-	BLECharacteristic *saveConfigRXCharacteristic;
-
+	BluetoothSerial btSerial;
 public:
-	void init(const char *name, const char *ssid);
+	void init(const char* name);
+	void handleCommands();
 };
 
 extern BluetoothClass Bluetooth;

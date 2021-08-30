@@ -1,11 +1,9 @@
 #include <WiFi.h>
-#include <BLEDevice.h>
-#include <BLEUtils.h>
-#include <BLEServer.h>
 #include <EEPROM.h>
+#include "BluetoothSerial.h"
 #include <connection/Network.hpp>
 #include <connection/bluetooth/Bluetooth.hpp>
-
+#include <tiny-json.h>
 #include "structures/GlobalConfig.hpp"
 
 void setup() {
@@ -22,20 +20,19 @@ void setup() {
 
 //    GlobalConfig cfg = GlobalConfig::load();
 	GlobalConfig cfg = GlobalConfig{};
-	strcpy(cfg.name, "Prototype");
+
+	strcpy(cfg.name, "NEW Prototype");
 	strcpy(cfg.ssid, "Nicoleta");
 	strcpy(cfg.psk, "A21D2CCAD9");
 
-	Bluetooth.init(cfg.name, cfg.ssid);
+	Bluetooth.init("Smarthome-1");
 	Network.connect(cfg.ssid, cfg.psk);
 }
 
+int i = 0;
 
 void loop() {
-	if (Network.getStatus() != WL_CONNECTED) {
-		delay(1000);
-		return;
-	}
-
+	Bluetooth.handleCommands();
 	Network.handleCommands();
+	delay(100);
 }

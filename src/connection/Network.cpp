@@ -14,7 +14,7 @@ uint8_t NetworkClass::data[dataLength];
 NetworkClass::NetworkClass() : server(COMMAND_PORT) {
 }
 
-void NetworkClass::connect(const char *ssid, const char *psk) {
+void NetworkClass::connect(const char* ssid, const char* psk) {
 	Serial.print("Connecting to the WiFi network: '");
 	Serial.print(ssid);
 	Serial.print("'");
@@ -51,6 +51,10 @@ uint8_t NetworkClass::getStatus() {
 }
 
 void NetworkClass::handleCommands() {
+	if (Network.getStatus() != WL_CONNECTED) {
+		return;
+	}
+
 	// Discovery through UDP, broadcasting using TCP is not possible
 	int udpMsgLength = udpListener.parsePacket();
 	if (udpMsgLength != 0) {
@@ -76,7 +80,7 @@ void NetworkClass::handleCommands() {
 			 * characters that are not overwritten remain in the string */
 			memset(name, 0, strlen(name));
 
-			GlobalConfig::readName(name);
+			GlobalConfig::readName(name, 256);
 			Serial.println(name);
 			String message = createDiscoveryMessage(UUID, name, powerState);
 
@@ -104,7 +108,7 @@ void NetworkClass::handleCommands() {
 					int len = client.read(data, dataLength - 1);
 					data[len] = '\0';
 
-					auto *dataStr = (char *) data;
+					auto* dataStr = (char*) data;
 
 					if (strcmp(dataStr, "on") == 0) {
 						Serial.println("ON");

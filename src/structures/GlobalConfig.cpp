@@ -12,8 +12,8 @@ GlobalConfig GlobalConfig::load() {
 	return cfg;
 }
 
-void GlobalConfig::readName(char *name) {
-	EEPROM.readString(offsetof(GlobalConfig, name), name, sizeof(name));
+void GlobalConfig::readName(char *name, size_t len) {
+	EEPROM.readString(offsetof(GlobalConfig, name), name, len);
 }
 
 void GlobalConfig::save() {
