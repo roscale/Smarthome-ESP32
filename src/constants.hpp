@@ -13,3 +13,4 @@ extern const uint16_t DISCOVERY_LISTEN_PORT;
 extern const uint16_t DISCOVERY_SEND_PORT;
 
 extern const uint8_t LIGHT_PIN;
+extern const uint8_t MANUAL_SWITCH_PIN;
