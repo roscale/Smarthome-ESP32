@@ -1,15 +1,38 @@
+#include <sstream>
+#include <structures/GlobalConfig.hpp>
 #include "util.hpp"
+#include "constants.hpp"
 
-String createDiscoveryMessage(const char *UUID, const char *name, int powerState) {
-	String s = "{";
-	s += R"("uuid": ")";
-	s += UUID;
-	s += R"(", )";
-	s += R"("name": ")";
-	s += name;
-	s += R"(", )";
-	s += R"("power_state": )";
-	s += powerState;
-	s += "}";
-	return s;
+std::string createDiscoveryJson() {
+	auto& cfg = GlobalConfig::instance();
+
+	std::stringstream ss;
+	ss << "{"
+	   << R"("uuid": ")"
+	   << UUID
+	   << R"(", )"
+	   << R"("name": ")"
+	   << cfg.name
+	   << R"(", )"
+	   << R"("power": )"
+	   << (cfg.power ? "true" : "false")
+	   << "}";
+
+	return ss.str();
+}
+
+std::string createWiFiInfoJson() {
+	auto& cfg = GlobalConfig::instance();
+
+	std::stringstream ss;
+	ss << "{"
+	   << R"("ssid": ")"
+	   << cfg.ssid
+	   << R"(", )"
+	   << R"("psk": ")"
+	   << cfg.psk
+	   << R"(")"
+	   << "}";
+
+	return ss.str();
 }

@@ -6,13 +6,17 @@
 #include <EEPROM.h>
 
 struct GlobalConfig {
-	char name[256] = {0};
-	char ssid[256] = {0};
-	char psk[256] = {0};
+	std::string name;
+	std::string ssid;
+	std::string psk;
+	bool power;
 
-	static GlobalConfig load();
-
-	static void readName(char *name, size_t len);
+	void load();
 
 	void save();
+
+	static GlobalConfig& instance();
+
+private:
+	static GlobalConfig* singleton;
 };

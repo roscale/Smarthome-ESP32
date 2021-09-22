@@ -7,7 +7,7 @@
 #include <constants.hpp>
 #include <util.hpp>
 #include <tiny-json.h>
-#include <structures/PowerState.hpp>
+#include <structures/GlobalConfig.hpp>
 
 BluetoothClass Bluetooth;
 
@@ -39,28 +39,38 @@ void BluetoothClass::handleCommands() {
 
 		// Client requests device information
 		if (json_getProperty(json, "info") != nullptr) {
-			String info = createDiscoveryMessage(UUID, "NEW Prototype", 1);
-			btSerial.print(info);
+			std::string info = createDiscoveryJson();
+			btSerial.print(info.c_str());
 			btSerial.flush();
 			return;
-//			btSerial.disconnect();
 		}
 
-		const json_t* powerStateProperty = json_getProperty(json, "power_state");
-		if (powerStateProperty != nullptr) {
-			if (json_getType(powerStateProperty) != JSON_INTEGER) {
+		if (json_getProperty(json, "wifi_info") != nullptr) {
+			std::string info = createWiFiInfoJson();
+			btSerial.print(info.c_str());
+			btSerial.flush();
+			return;
+		}
+
+		const json_t* powerProperty = json_getProperty(json, "power");
+		if (powerProperty != nullptr) {
+			if (json_getType(powerProperty) != JSON_BOOLEAN) {
 				printJsonError();
 				return;
 			}
-			int64_t powerStateValue = json_getInteger(powerStateProperty);
-			Serial.print("Power State: ");
-			Serial.println(powerStateValue);
-			if (powerStateValue == 1) {
-				powerState = PowerState::ON;
+			bool powerValue = json_getBoolean(powerProperty);
+			Serial.print("Power: ");
+			Serial.println(powerValue);
+
+			auto& cfg = GlobalConfig::instance();
+			if (powerValue) {
 				digitalWrite(LIGHT_PIN, HIGH);
+				cfg.power = true;
+				cfg.save();
 			} else {
-				powerState = PowerState::OFF;
 				digitalWrite(LIGHT_PIN, LOW);
+				cfg.power = false;
+				cfg.save();
 			}
 		}
 

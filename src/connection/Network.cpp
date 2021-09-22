@@ -4,8 +4,8 @@
 
 #include "Network.hpp"
 #include <structures/GlobalConfig.hpp>
-#include <structures/PowerState.hpp>
 #include <util.hpp>
+#include <tiny-json.h>
 
 NetworkClass Network;
 
@@ -74,22 +74,14 @@ void NetworkClass::handleCommands() {
 		Serial.println(udpListener.remoteIP());
 
 		if (client.connect(udpListener.remoteIP(), DISCOVERY_SEND_PORT)) {
-			static char name[256];
-			/* Reset leftover characters
-			 * If we first set a long name and then a shorter one, the
-			 * characters that are not overwritten remain in the string */
-			memset(name, 0, strlen(name));
+			std::string message = createDiscoveryJson();
 
-			GlobalConfig::readName(name, 256);
-			Serial.println(name);
-			String message = createDiscoveryMessage(UUID, name, powerState);
-
-			client.print(message);
+			client.print(message.c_str());
 			client.flush();
 			client.stop();
 
 			Serial.print("Sent: ");
-			Serial.println(message);
+			Serial.println(message.c_str());
 
 		} else {
 			Serial.println("[UDP] Couldn't report back discovery");
@@ -108,17 +100,48 @@ void NetworkClass::handleCommands() {
 					int len = client.read(data, dataLength - 1);
 					data[len] = '\0';
 
-					auto* dataStr = (char*) data;
+					char* jsonStr = (char*) data;
 
-					if (strcmp(dataStr, "on") == 0) {
-						Serial.println("ON");
-						powerState = PowerState::ON;
-						digitalWrite(LIGHT_PIN, HIGH);
+					auto printJsonError = [&]() {
+						Serial.print("Couldn't parse json: ");
+						Serial.println(jsonStr);
+						client.flush();
+						client.stop();
+					};
 
-					} else if (strcmp(dataStr, "off") == 0) {
-						Serial.println("OFF");
-						powerState = PowerState::OFF;
-						digitalWrite(LIGHT_PIN, LOW);
+					json_t mem[32];
+					const json_t* json = json_create(jsonStr, mem, sizeof mem / sizeof *mem);
+					if (!json) {
+						printJsonError();
+						return;
+					}
+
+					auto& cfg = GlobalConfig::instance();
+
+					const json_t* powerProperty = json_getProperty(json, "power");
+					if (powerProperty != nullptr) {
+						if (json_getType(powerProperty) != JSON_BOOLEAN) {
+							printJsonError();
+							return;
+						}
+						bool powerValue = json_getBoolean(powerProperty);
+						if (powerValue) {
+							digitalWrite(LIGHT_PIN, HIGH);
+							cfg.power = true;
+							cfg.save();
+							Serial.println("ON");
+						} else {
+							digitalWrite(LIGHT_PIN, LOW);
+							cfg.power = false;
+							cfg.save();
+							Serial.println("OFF");
+						}
+					}
+
+					const json_t* wifiInfoProperty = json_getProperty(json, "wifi_info");
+					if (wifiInfoProperty != nullptr) {
+						std::string info = createWiFiInfoJson();
+						client.print(info.c_str());
 					}
 				}
 			}

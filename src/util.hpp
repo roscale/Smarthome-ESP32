@@ -2,4 +2,5 @@
 
 #include <WString.h>
 
-String createDiscoveryMessage(const char *UUID, const char *name, int powerState);
+std::string createDiscoveryJson();
+std::string createWiFiInfoJson();

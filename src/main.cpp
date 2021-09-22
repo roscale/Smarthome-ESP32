@@ -2,7 +2,7 @@
 #include <EEPROM.h>
 #include "BluetoothSerial.h"
 #include <connection/Network.hpp>
-#include <connection/bluetooth/Bluetooth.hpp>
+#include <connection/Bluetooth.hpp>
 #include <tiny-json.h>
 #include "structures/GlobalConfig.hpp"
 
@@ -18,18 +18,16 @@ void setup() {
 		ESP.restart();
 	}
 
-//    GlobalConfig cfg = GlobalConfig::load();
-	GlobalConfig cfg = GlobalConfig{};
+	auto& cfg = GlobalConfig::instance();
+	cfg.load();
 
-	strcpy(cfg.name, "NEW Prototype");
-	strcpy(cfg.ssid, "Nicoleta");
-	strcpy(cfg.psk, "A21D2CCAD9");
+	if (cfg.power) {
+		digitalWrite(LIGHT_PIN, HIGH);
+	}
 
 	Bluetooth.init("Smarthome-1");
-	Network.connect(cfg.ssid, cfg.psk);
+	Network.connect(cfg.ssid.c_str(), cfg.psk.c_str());
 }
-
-int i = 0;
 
 void loop() {
 	Bluetooth.handleCommands();
